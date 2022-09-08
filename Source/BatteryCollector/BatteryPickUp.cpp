@@ -27,7 +27,6 @@ void ABatteryPickUp::Tick(float DeltaTime)
 
 void ABatteryPickUp::OnPickupCollected_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("on Battery Pickup"));
 
 	// base func for overriding function
 	Super::OnPickupCollected_Implementation();

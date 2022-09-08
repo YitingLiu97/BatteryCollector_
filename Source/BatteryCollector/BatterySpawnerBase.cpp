@@ -1,9 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
-
+#include "BatterySpawnerBase.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "PickUpBase.h"
-#include "BatterySpawnerBase.h"
 
 // Sets default values
 ABatterySpawnerBase::ABatterySpawnerBase()
@@ -20,9 +19,6 @@ void ABatterySpawnerBase::BeginPlay()
 {
 	Super::BeginPlay();
 
-	RandomSpawnDelay = FMath::RandRange(MinSpawnDelay, MaxSpawnDelay);
-	GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABatterySpawnerBase::SpawnBatteryActor, RandomSpawnDelay, false);
-
 }
 
 // Called every frame
@@ -38,6 +34,17 @@ FVector ABatterySpawnerBase::GetRandomSpawnPoint()
 	const FVector SpawnOrigin = SpawnVolume->Bounds.Origin;
 	const FVector SpawnLimit = SpawnVolume->Bounds.BoxExtent;
 	return UKismetMathLibrary::RandomPointInBoundingBox(SpawnOrigin, SpawnLimit);
+}
+
+void ABatterySpawnerBase::SetSpawnerActive(bool bIsActive)
+{
+	if (bIsActive) {
+		RandomSpawnDelay = FMath::RandRange(MinSpawnDelay, MaxSpawnDelay);
+		GetWorld()->GetTimerManager().SetTimer(SpawnTimerHandle, this, &ABatterySpawnerBase::SpawnBatteryActor, RandomSpawnDelay, false);
+	}
+	else{
+		GetWorld()->GetTimerManager().ClearTimer(SpawnTimerHandle);
+	}
 }
 
 void ABatterySpawnerBase::SpawnBatteryActor()

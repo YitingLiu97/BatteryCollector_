@@ -1,9 +1,11 @@
 // Copyright Epic Games, Inc. All Rights Reserved.
-
 #include "BatteryCollectorGameMode.h"
 #include "BatteryCollectorCharacter.h"
 #include "UObject/ConstructorHelpers.h"
 #include "Kismet/GameplayStatics.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "BatterySpawnerBase.h"
+#include "EngineUtils.h"
 #include "Blueprint/UserWidget.h"
 ABatteryCollectorGameMode::ABatteryCollectorGameMode()
 {
@@ -32,13 +34,19 @@ EGameState ABatteryCollectorGameMode::GetCurrentGameState() const
 
 void ABatteryCollectorGameMode::SetCurrentGameState(EGameState NewState)
 {
-	CurrentGameState= NewState;
+	CurrentGameState = NewState;
 }
 
 
 void ABatteryCollectorGameMode::BeginPlay() {
 
 	Super::BeginPlay();
+
+	// TActorIterator For Loop this is for getting the references for the class 
+	for (TActorIterator<ABatterySpawnerBase> It(GetWorld()); It; ++It)
+	{
+		ActiveSpawnersInTheLevel.Add(*It);
+	}
 
 	SetCurrentGameState(EGameState::Playing);
 
@@ -70,12 +78,12 @@ void ABatteryCollectorGameMode::StartPowerLevelDecay()
 	ABatteryCollectorCharacter* PlayerCharacter = Cast<ABatteryCollectorCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 
 	// Check if our power level is greater than zero 
-	if (PlayerCharacter ) {
+	if (PlayerCharacter) {
 
 		if (PlayerCharacter->GetCurrentPowerLevel() > PowerAmountToWin) {
 			UE_LOG(LogTemp, Warning, TEXT("PowerAmountToWin %d: "), PowerAmountToWin)
 
-			SetCurrentGameState(EGameState::Won);
+				SetCurrentGameState(EGameState::Won);
 
 		}
 		else if (PlayerCharacter->GetCurrentPowerLevel() > 0.0f) {
@@ -87,18 +95,55 @@ void ABatteryCollectorGameMode::StartPowerLevelDecay()
 			UE_LOG(LogTemp, Warning, TEXT("should lose"));
 			SetCurrentGameState(EGameState::Lost);
 
-		
+
 		}
 
 	}
 
 
+}
 
+void ABatteryCollectorGameMode::HandleNewState(EGameState NewState)
+{
+	switch (NewState)
+	{
+		case EGameState::Playing:
+			for (auto Spawner : ActiveSpawnersInTheLevel)
+			{
+				Spawner->SetSpawnerActive(true);
+			}
+			break;
 
+		case EGameState::Won:
+			for (auto Spawner : ActiveSpawnersInTheLevel)
+			{
+				Spawner->SetSpawnerActive(false);
+			}
+			break;
+		case EGameState::Lost:
+		{	for (auto Spawner : ActiveSpawnersInTheLevel)
+		{
+			Spawner->SetSpawnerActive(false);
+		}
+		// disable player input 
+		APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+		if (!PC) { return; }
+		PC->SetCinematicMode(true, false, false);
 
-	// Call the function that updates our power level 
+		// ragdoll out player character 
+		ACharacter* MyCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
 
+		if (!MyCharacter) { return; }
+		MyCharacter->GetMesh()->SetSimulatePhysics(true);
+		MyCharacter->GetMovementComponent()->MovementState.bCanJump = false;
+		}
 
+		break;
 
+		case EGameState::None:
 
+			break;
+		default:
+			break;
+	}
 }

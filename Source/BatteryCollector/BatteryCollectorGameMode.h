@@ -63,6 +63,10 @@ protected:
 
 private:
 	EGameState CurrentGameState; 
+	
+	TArray<class ABatterySpawnerBase*> ActiveSpawnersInTheLevel; 
+
+	void HandleNewState(EGameState NewState); 
 
 };
 

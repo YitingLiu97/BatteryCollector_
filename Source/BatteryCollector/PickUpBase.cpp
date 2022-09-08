@@ -22,8 +22,6 @@ bool APickUpBase::IsPickupActive() const
 
 void APickUpBase::SetPickupIsActive(bool NewActiveState)
 {
-	UE_LOG(LogTemp, Warning, TEXT("bIsActive: %b"), NewActiveState);
-
 	bIsActive = NewActiveState;
 }
 

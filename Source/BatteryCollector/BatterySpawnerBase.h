@@ -39,6 +39,9 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Spawner")
 		FVector GetRandomSpawnPoint();
 
+	UFUNCTION(BlueprintCallable, Category="Spawner")
+	void SetSpawnerActive(bool bIsActive);
+
 private:
 	void SpawnBatteryActor();
 
