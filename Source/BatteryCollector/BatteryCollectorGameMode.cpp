@@ -35,6 +35,7 @@ EGameState ABatteryCollectorGameMode::GetCurrentGameState() const
 void ABatteryCollectorGameMode::SetCurrentGameState(EGameState NewState)
 {
 	CurrentGameState = NewState;
+	HandleNewState(CurrentGameState);
 }
 
 
@@ -70,6 +71,7 @@ void ABatteryCollectorGameMode::BeginPlay() {
 
 
 }
+
 
 // should make sure the third person is moving - Game Mode related
 void ABatteryCollectorGameMode::StartPowerLevelDecay()
@@ -119,6 +121,8 @@ void ABatteryCollectorGameMode::HandleNewState(EGameState NewState)
 			{
 				Spawner->SetSpawnerActive(false);
 			}
+			RestartGame();
+
 			break;
 		case EGameState::Lost:
 		{	for (auto Spawner : ActiveSpawnersInTheLevel)
@@ -128,14 +132,15 @@ void ABatteryCollectorGameMode::HandleNewState(EGameState NewState)
 		// disable player input 
 		APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
 		if (!PC) { return; }
-		PC->SetCinematicMode(true, false, false);
+		PC->SetCinematicMode(true, false, true);
 
 		// ragdoll out player character 
 		ACharacter* MyCharacter = UGameplayStatics::GetPlayerCharacter(this, 0);
 
 		if (!MyCharacter) { return; }
-		MyCharacter->GetMesh()->SetSimulatePhysics(true);
-		MyCharacter->GetMovementComponent()->MovementState.bCanJump = false;
+			MyCharacter->GetMesh()->SetSimulatePhysics(true);
+			MyCharacter->GetMovementComponent()->MovementState.bCanJump = false;
+			RestartGame();
 		}
 
 		break;

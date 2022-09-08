@@ -56,6 +56,8 @@ protected:
 		
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintImplementableEvent, Category="Polish")
+	void RestartGame();
 	void StartPowerLevelDecay();
 
 	FTimerHandle PowerDelayTimerHandle;
