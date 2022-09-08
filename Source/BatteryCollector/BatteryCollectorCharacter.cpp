@@ -131,7 +131,7 @@ void ABatteryCollectorCharacter::OnConstruction(const FTransform& Transform)
 	{
 		UMaterialInterface* MaterialToEdit = GetMesh()->GetMaterial(Index);
 		PowerLevelDynamicMaterial.Add(UMaterialInstanceDynamic::Create(MaterialToEdit, this));
-		GetMesh()->SetMaterial(Index, PowerLevelDynamicMaterial[Index]);
+		//GetMesh()->SetMaterial(Index, PowerLevelDynamicMaterial[Index]);
 	}
 
 }
